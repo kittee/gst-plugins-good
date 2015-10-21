@@ -502,7 +502,7 @@ gst_alaw_enc_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
   GstBuffer *outbuf;
   gint i;
   GstFlowReturn ret;
-  GstClockTime timestamp, duration;
+  GstClockTime pts, dts, duration;
 
   alawenc = GST_ALAW_ENC (parent);
 
@@ -515,11 +515,12 @@ gst_alaw_enc_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
 
   alaw_size = linear_size / 2;
 
-  timestamp = GST_BUFFER_TIMESTAMP (buffer);
+  pts = GST_BUFFER_PTS (buffer);
+  dts = GST_BUFFER_DTS (buffer);
   duration = GST_BUFFER_DURATION (buffer);
 
-  GST_LOG_OBJECT (alawenc, "buffer with ts=%" GST_TIME_FORMAT,
-      GST_TIME_ARGS (timestamp));
+  GST_LOG_OBJECT (alawenc, "buffer with pts=%" GST_TIME_FORMAT,
+      GST_TIME_ARGS (pts));
 
   outbuf = gst_buffer_new_allocate (NULL, alaw_size, NULL);
 
@@ -536,7 +537,8 @@ gst_alaw_enc_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
   if (GST_BUFFER_FLAG_IS_SET (buffer, GST_BUFFER_FLAG_DISCONT))
     GST_BUFFER_FLAG_SET (outbuf, GST_BUFFER_FLAG_DISCONT);
 
-  GST_BUFFER_TIMESTAMP (outbuf) = timestamp;
+  GST_BUFFER_PTS (outbuf) = pts;
+  GST_BUFFER_DTS (outbuf) = dts;
   GST_BUFFER_DURATION (outbuf) = duration;
 
   for (i = 0; i < alaw_size; i++) {
